@@ -203,6 +203,18 @@ function TaskList({ onEdit }) {
                 gap: 1
               }}
             >
+              {/* Priority Badge */}
+              <Chip
+                label={task.priority || 'P3'}
+                size="small"
+                className={`priority-badge priority-${(task.priority || 'P3').toLowerCase()}`}
+                sx={{
+                  height: 20,
+                  fontSize: '0.7rem',
+                  fontWeight: 600,
+                  letterSpacing: '0.5px'
+                }}
+              />
               {task.due_date && (
                 <Chip
                   icon={<EventIcon sx={{ fontSize: 14 }} />}

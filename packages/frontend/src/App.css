@@ -92,3 +92,23 @@ li:last-child {
   color: #d32f2f;
   font-weight: bold;
 }
+
+/* Priority Badges */
+.priority-badge {
+  color: #fff;
+  text-transform: uppercase;
+}
+.priority-p1 {
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+}
+.priority-p2 {
+  background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);
+}
+.priority-p3 {
+  background: linear-gradient(135deg, #9e9e9e 0%, #757575 100%);
+}
+
+/* Accessibility contrast tweaks */
+.priority-badge.priority-p1 { box-shadow: 0 0 0 1px rgba(0,0,0,0.15); }
+.priority-badge.priority-p2 { box-shadow: 0 0 0 1px rgba(0,0,0,0.15); }
+.priority-badge.priority-p3 { box-shadow: 0 0 0 1px rgba(0,0,0,0.15); }
