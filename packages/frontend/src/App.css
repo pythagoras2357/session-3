@@ -113,6 +113,9 @@ li:last-child {
 .priority-badge.priority-p2 { box-shadow: 0 0 0 1px rgba(0,0,0,0.15); }
 .priority-badge.priority-p3 { box-shadow: 0 0 0 1px rgba(0,0,0,0.15); }
 
-/* UI Sketch Color Reference: #07F2E6 (accent/highlight from design) */
+/* Accent color from UI sketch */
+.accent-highlight {
+  color: #07F2E6;
+}
 
 /* UI Sketch Color Reference: #07F2E6 (accent/highlight from design) */
