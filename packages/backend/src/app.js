@@ -172,4 +172,97 @@ app.delete('/api/tasks/:id', (req, res) => {
   }
 });
 
+// --- LEGACY /api/items ENDPOINTS (for backwards compatibility) ---
+// These mirror the /api/tasks endpoints but use 'items' naming
+
+app.get('/api/items', (req, res) => {
+  try {
+    const { completed, search } = req.query;
+    const { where, params } = buildTaskQuery({ completed, search });
+    const sql = `SELECT * FROM tasks ${where} ORDER BY due_date IS NULL, due_date ASC, created_at ASC`;
+    const tasks = db.prepare(sql).all(params);
+    res.json(tasks);
+  } catch (error) {
+    console.error('Error fetching items:', error);
+    res.status(500).json({ error: 'Failed to fetch items' });
+  }
+});
+
+app.post('/api/items', (req, res) => {
+  try {
+    const { title, description, due_date, priority } = req.body;
+    if (!title || typeof title !== 'string' || title.trim() === '') {
+      return res.status(400).json({ error: 'Item title is required' });
+    }
+    const allowedPriorities = ['P1', 'P2', 'P3'];
+    const normalizedPriority = allowedPriorities.includes(priority) ? priority : 'P3';
+    const stmt = db.prepare('INSERT INTO tasks (title, description, due_date, priority) VALUES (?, ?, ?, ?)');
+    const result = stmt.run(title.trim(), description || '', due_date || null, normalizedPriority);
+    const newTask = db.prepare('SELECT * FROM tasks WHERE id = ?').get(result.lastInsertRowid);
+    res.status(201).json(newTask);
+  } catch (error) {
+    console.error('Error creating item:', error);
+    res.status(500).json({ error: 'Failed to create item' });
+  }
+});
+
+app.get('/api/items/:id', (req, res) => {
+  try {
+    const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id);
+    if (!task) return res.status(404).json({ error: 'Item not found' });
+    res.json(task);
+  } catch (error) {
+    console.error('Error fetching item:', error);
+    res.status(500).json({ error: 'Failed to fetch item' });
+  }
+});
+
+app.put('/api/items/:id', (req, res) => {
+  try {
+    const { title, description, due_date, priority } = req.body;
+    if (!title || typeof title !== 'string' || title.trim() === '') {
+      return res.status(400).json({ error: 'Item title is required' });
+    }
+    const allowedPriorities = ['P1', 'P2', 'P3'];
+    const normalizedPriority = allowedPriorities.includes(priority) ? priority : 'P3';
+    const stmt = db.prepare('UPDATE tasks SET title = ?, description = ?, due_date = ?, priority = ? WHERE id = ?');
+    const result = stmt.run(title.trim(), description || '', due_date || null, normalizedPriority, req.params.id);
+    if (result.changes === 0) return res.status(404).json({ error: 'Item not found' });
+    const updatedTask = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id);
+    res.json(updatedTask);
+  } catch (error) {
+    console.error('Error updating item:', error);
+    res.status(500).json({ error: 'Failed to update item' });
+  }
+});
+
+app.patch('/api/items/:id', (req, res) => {
+  try {
+    const { completed } = req.body;
+    if (typeof completed !== 'boolean') {
+      return res.status(400).json({ error: 'Completed must be boolean' });
+    }
+    const stmt = db.prepare('UPDATE tasks SET completed = ? WHERE id = ?');
+    const result = stmt.run(completed ? 1 : 0, req.params.id);
+    if (result.changes === 0) return res.status(404).json({ error: 'Item not found' });
+    const updatedTask = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id);
+    res.json(updatedTask);
+  } catch (error) {
+    console.error('Error updating item completion:', error);
+    res.status(500).json({ error: 'Failed to update item completion' });
+  }
+});
+
+app.delete('/api/items/:id', (req, res) => {
+  try {
+    const stmt = db.prepare('DELETE FROM tasks WHERE id = ?');
+    const result = stmt.run(req.params.id);
+    if (result.changes === 0) return res.status(404).json({ error: 'Item not found' });
+    res.status(204).end();
+  } catch (error) {
+    console.error('Error deleting item:', error);
+    res.status(500).json({ error: 'Failed to delete item' });
+  }
+});
+
 module.exports = { app, db };
