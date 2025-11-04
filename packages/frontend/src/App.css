@@ -118,4 +118,8 @@ li:last-child {
   color: #07F2E6;
 }
 
+.priority-text-color {
+  color: #7A7A7A;
+}
+
 /* UI Sketch Color Reference: #07F2E6 (accent/highlight from design) */
